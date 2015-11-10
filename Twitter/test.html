@@ -1,0 +1,314 @@
+<html>
+  <head>
+	<style>
+		/* 
+* Example style!
+* You can do whatever the hell you want on your site :-)
+*/
+
+h2 {
+  clear:both;
+}
+
+p, a {
+  font-size:9pt;
+  margin:10px 0 0 0;
+  color:#3d3d3d;
+}
+
+a, a:visited {
+  color:#427fed;
+}
+
+a:hover {
+  color:#82afff;
+}
+
+ul li {
+  list-style:none;
+  overflow:hidden;
+  border:1px solid #dedede;
+  margin:5px;
+  padding:5px;
+}
+
+ul li:hover {
+  background-color:#f0f3fb;
+}
+
+.user, .tweet, .timePosted {
+  float:left;
+}
+
+.user {
+  width:25%;
+}
+
+.tweet {
+  width:50%;
+}
+
+.timePosted {
+  width:15%;
+}
+
+.user {
+  clear:left;
+}
+
+.user a {
+ width: 100px;
+}
+
+.user span span {
+  width:100px;
+  display:block;
+  margin-top:10px;
+}
+
+.user img, .user a > span {
+  float:left;
+}
+
+.interact {
+  float:left;
+  width:10%;
+  margin-top:-7px;
+}
+
+.interact a {
+  margin-left:5px;
+  float:left;
+}
+
+.user a > span {
+  margin-left:10px;
+}
+
+.media img {
+  max-width:250px;
+  max-height:250px;
+}
+
+#linkage {
+  position:fixed;
+  top:0px;
+  right:0px;
+  background-color:#3d3d3d;
+  color:#ffffff;
+  text-decoration:none;
+  padding:5px;
+  width:10%;
+  font-family:arial;
+}
+	</style>
+	
+	
+  </head>
+  <body>
+    <a id="linkage" href="http://www.jasonmayes.com/projects/twitterApi/" target="_blank">Visit my website</a>
+    <h2>Query 1: My latest tweet</h2>
+    <div id="example1"></div>
+    <h2>Query 2: What people are saying about this component!</h2>
+    <div id="example2"></div>
+    <h2>Query 3: Last 5 Twitter posts using hastag #Caturday, including images (if any)</h2>
+    <div id="example3"></div>
+    <h2>Query 4: Last 3 Twitter posts using hastag #API</h2>
+    <div id="example4"></div>
+    <h2>Query 5: Last 3 Twitter posts using hastag #API with custom callback</h2>
+    <div id="example5"></div>
+
+  <script>
+    (function (w, n) {
+    'function' === typeof define && define.amd ? define([], n) : 'object' === typeof exports ? module.exports = n() : n();
+}(this, function () {
+    function w(a) {
+        return a.replace(/<b[^>]*>(.*?)<\/b>/gi, function (a, g) {
+            return g;
+        }).replace(/class=".*?"|data-query-source=".*?"|dir=".*?"|rel=".*?"/gi, '');
+    }
+    function n(a) {
+        a = a.getElementsByTagName('a');
+        for (var c = a.length - 1; 0 <= c; c--) {
+            if (window.CP.shouldStopExecution(1)) {
+                break;
+            }
+            a[c].setAttribute('target', '_blank');
+        }
+        window.CP.exitedLoop(1);
+    }
+    function m(a, c) {
+        for (var g = [], f = new RegExp('(^| )' + c + '( |$)'), h = a.getElementsByTagName('*'), b = 0, k = h.length; b < k; b++) {
+            if (window.CP.shouldStopExecution(2)) {
+                break;
+            }
+            f.test(h[b].className) && g.push(h[b]);
+        }
+        return g;
+        window.CP.exitedLoop(2);
+    }
+    var B = '', k = 20, C = !0, u = [], x = !1, v = !0, q = !0, y = null, z = !0, D = !0, A = null, E = !0, F = !1, r = !0, G = !0, H = {
+            fetch: function (a) {
+                void 0 === a.maxTweets && (a.maxTweets = 20);
+                void 0 === a.enableLinks && (a.enableLinks = !0);
+                void 0 === a.showUser && (a.showUser = !0);
+                void 0 === a.showTime && (a.showTime = !0);
+                void 0 === a.dateFunction && (a.dateFunction = 'default');
+                void 0 === a.showRetweet && (a.showRetweet = !0);
+                void 0 === a.customCallback && (a.customCallback = null);
+                void 0 === a.showInteraction && (a.showInteraction = !0);
+                void 0 === a.showImages && (a.showImages = !1);
+                void 0 === a.linksInNewWindow && (a.linksInNewWindow = !0);
+                void 0 === a.showPermalinks && (a.showPermalinks = !0);
+                if (x)
+                    u.push(a);
+                else {
+                    x = !0;
+                    B = a.domId;
+                    k = a.maxTweets;
+                    C = a.enableLinks;
+                    q = a.showUser;
+                    v = a.showTime;
+                    D = a.showRetweet;
+                    y = a.dateFunction;
+                    A = a.customCallback;
+                    E = a.showInteraction;
+                    F = a.showImages;
+                    r = a.linksInNewWindow;
+                    G = a.showPermalinks;
+                    var c = document.createElement('script');
+                    c.type = 'text/javascript';
+                    c.src = '//cdn.syndication.twimg.com/widgets/timelines/' + a.id + '?&lang=' + (a.lang || 'en') + '&callback=twitterFetcher.callback&suppress_response_codes=true&rnd=' + Math.random();
+                    document.getElementsByTagName('head')[0].appendChild(c);
+                }
+            },
+            callback: function (a) {
+                var c = document.createElement('div');
+                c.innerHTML = a.body;
+                'undefined' === typeof c.getElementsByClassName && (z = !1);
+                a = [];
+                var g = [], f = [], h = [], b = [], p = [], t = [], e = 0;
+                if (z)
+                    for (c = c.getElementsByClassName('tweet'); e < c.length;) {
+                        0 < c[e].getElementsByClassName('retweet-credit').length ? b.push(!0) : b.push(!1);
+                        if (!b[e] || b[e] && D)
+                            a.push(c[e].getElementsByClassName('e-entry-title')[0]), p.push(c[e].getAttribute('data-tweet-id')), g.push(c[e].getElementsByClassName('p-author')[0]), f.push(c[e].getElementsByClassName('dt-updated')[0]), t.push(c[e].getElementsByClassName('permalink')[0]), void 0 !== c[e].getElementsByClassName('inline-media')[0] ? h.push(c[e].getElementsByClassName('inline-media')[0]) : h.push(void 0);
+                        e++;
+                    }
+                else
+                    for (c = m(c, 'tweet'); e < c.length;)
+                        a.push(m(c[e], 'e-entry-title')[0]), p.push(c[e].getAttribute('data-tweet-id')), g.push(m(c[e], 'p-author')[0]), f.push(m(c[e], 'dt-updated')[0]), t.push(c[e].getElementsByClassName('permalink')[0]), void 0 !== m(c[e], 'inline-media')[0] ? h.push(m(c[e], 'inline-media')[0]) : h.push(void 0), 0 < m(c[e], 'retweet-credit').length ? b.push(!0) : b.push(!1), e++;
+                a.length > k && (a.splice(k, a.length - k), g.splice(k, g.length - k), f.splice(k, f.length - k), b.splice(k, b.length - k), h.splice(k, h.length - k), t.splice(k, t.length - k));
+                c = [];
+                e = a.length;
+                for (b = 0; b < e;) {
+                    if ('string' !== typeof y) {
+                        var d = f[b].getAttribute('datetime'), l = new Date(f[b].getAttribute('datetime').replace(/-/g, '/').replace('T', ' ').split('+')[0]), d = y(l, d);
+                        f[b].setAttribute('aria-label', d);
+                        if (a[b].innerText)
+                            if (z)
+                                f[b].innerText = d;
+                            else {
+                                var l = document.createElement('p'), I = document.createTextNode(d);
+                                l.appendChild(I);
+                                l.setAttribute('aria-label', d);
+                                f[b] = l;
+                            }
+                        else
+                            f[b].textContent = d;
+                    }
+                    d = '';
+                    C ? (r && (n(a[b]), q && n(g[b])), q && (d += '<div class="user">' + w(g[b].innerHTML) + '</div>'), d += '<p class="tweet">' + w(a[b].innerHTML) + '</p>', v && (d = G ? d + ('<p class="timePosted"><a href="' + t[b] + '">' + f[b].getAttribute('aria-label') + '</a></p>') : d + ('<p class="timePosted">' + f[b].getAttribute('aria-label') + '</p>'))) : a[b].innerText ? (q && (d += '<p class="user">' + g[b].innerText + '</p>'), d += '<p class="tweet">' + a[b].innerText + '</p>', v && (d += '<p class="timePosted">' + f[b].innerText + '</p>')) : (q && (d += '<p class="user">' + g[b].textContent + '</p>'), d += '<p class="tweet">' + a[b].textContent + '</p>', v && (d += '<p class="timePosted">' + f[b].textContent + '</p>'));
+                    E && (d += '<p class="interact"><a href="https://twitter.com/intent/tweet?in_reply_to=' + p[b] + '" class="twitter_reply_icon"' + (r ? ' target="_blank">' : '>') + 'Reply</a><a href="https://twitter.com/intent/retweet?tweet_id=' + p[b] + '" class="twitter_retweet_icon"' + (r ? ' target="_blank">' : '>') + 'Retweet</a><a href="https://twitter.com/intent/favorite?tweet_id=' + p[b] + '" class="twitter_fav_icon"' + (r ? ' target="_blank">' : '>') + 'Favorite</a></p>');
+                    F && void 0 !== h[b] && (l = h[b], void 0 !== l ? (l = l.innerHTML.match(/data-srcset="([A-z0-9%_\.-]+)/i)[0], l = decodeURIComponent(l).split('"')[1]) : l = void 0, d += '<div class="media"><img src="' + l + '" alt="Image from tweet" /></div>');
+                    c.push(d);
+                    b++;
+                }
+                if (null === A) {
+                    a = c.length;
+                    g = 0;
+                    f = document.getElementById(B);
+                    for (h = '<ul>'; g < a;)
+                        h += '<li>' + c[g] + '</li>', g++;
+                    f.innerHTML = h + '</ul>';
+                } else
+                    A(c);
+                x = !1;
+                0 < u.length && (H.fetch(u[0]), u.splice(0, 1));
+            }
+        };
+    return window.twitterFetcher = H;
+}));
+var config1 = {
+    'id': '345170787868762112',
+    'domId': 'example1',
+    'maxTweets': 1,
+    'enableLinks': true,
+    'showPermalinks': false
+};
+twitterFetcher.fetch(config1);
+var config2 = {
+    'id': '347099293930377217',
+    'domId': 'example2',
+    'maxTweets': 5,
+    'enableLinks': true,
+    'showUser': true,
+    'showTime': true,
+    'lang': 'en'
+};
+twitterFetcher.fetch(config2);
+var config3 = {
+    'id': '502160051226681344',
+    'domId': 'example3',
+    'maxTweets': 5,
+    'enableLinks': true,
+    'showImages': true
+};
+twitterFetcher.fetch(config3);
+var config4 = {
+    'id': '345690956013633536',
+    'domId': 'example4',
+    'maxTweets': 3,
+    'enableLinks': true,
+    'showUser': false,
+    'showTime': true,
+    'dateFunction': dateFormatter,
+    'showRetweet': false
+};
+function dateFormatter(date) {
+    return date.toTimeString();
+}
+twitterFetcher.fetch(config4);
+var config5 = {
+    'id': '345690956013633536',
+    'domId': '',
+    'maxTweets': 3,
+    'enableLinks': true,
+    'showUser': true,
+    'showTime': true,
+    'dateFunction': '',
+    'showRetweet': false,
+    'customCallback': handleTweets,
+    'showInteraction': false
+};
+function handleTweets(tweets) {
+    var x = tweets.length;
+    var n = 0;
+    var element = document.getElementById('example5');
+    var html = '<ul>';
+    while (n < x) {
+        if (window.CP.shouldStopExecution(3)) {
+            break;
+        }
+        html += '<li>' + tweets[n] + '</li>';
+        n++;
+    }
+    window.CP.exitedLoop(3);
+    html += '</ul>';
+    element.innerHTML = html;
+}
+twitterFetcher.fetch(config5);
+    //@ sourceURL=pen.js
+  </script>
+    </body>
+</html>
